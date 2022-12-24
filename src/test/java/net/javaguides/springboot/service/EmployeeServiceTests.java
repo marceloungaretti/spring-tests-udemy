@@ -12,9 +12,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
+import org.mockito.BDDMockito;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -122,5 +122,16 @@ public class EmployeeServiceTests {
 
         assertThat(updatedEmployee.getEmail()).isEqualTo("mcainelli@emailatualizado.com");
         assertThat(updatedEmployee.getFirstName()).isEqualTo("Novo Marcelo");
+    }
+
+    @DisplayName("Junit test for deleteEmployee method")
+    @Test
+    public void givenEmployeeId_whenDeleteEmployee_thenVoid(){
+        long employeeId = 1L;
+        BDDMockito.willDoNothing().given(employeeRepository).deleteById(employeeId);
+
+        employeeService.deleteEmployee(employeeId);
+
+        verify(employeeRepository, times(1)).deleteById(employeeId);
     }
 }
