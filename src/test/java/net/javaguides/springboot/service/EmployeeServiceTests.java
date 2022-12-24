@@ -4,7 +4,7 @@ import net.javaguides.springboot.exception.ResourceNotFoundException;
 import net.javaguides.springboot.model.Employee;
 import net.javaguides.springboot.repository.EmployeeRepository;
 import net.javaguides.springboot.service.impl.EmployeeServiceImpl;
-import org.assertj.core.api.Assertions;
+import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -51,7 +51,7 @@ public class EmployeeServiceTests {
         given(employeeRepository.save(employee)).willReturn(employee);
         Employee savedEmployee = employeeService.saveEmployee(employee);
 
-        Assertions.assertThat(savedEmployee).isNotNull();
+        assertThat(savedEmployee).isNotNull();
     }
 
     @DisplayName("Junit test for save employee method which throws exception.")
@@ -80,8 +80,8 @@ public class EmployeeServiceTests {
 
         List<Employee> employeeList = employeeService.getAllEmployees();
 
-        Assertions.assertThat(employeeList).isNotNull();
-        Assertions.assertThat(employeeList.size()).isEqualTo(2);
+        assertThat(employeeList).isNotNull();
+        assertThat(employeeList.size()).isEqualTo(2);
     }
 
     @DisplayName("Junit test for getAllEmployees method (negative scenario)")
@@ -98,6 +98,16 @@ public class EmployeeServiceTests {
 
         List<Employee> employeeList = employeeService.getAllEmployees();
 
-        Assertions.assertThat(employeeList).isEmpty();
+        assertThat(employeeList).isEmpty();
+    }
+
+    @DisplayName("Junit test for getEmployeeById method")
+    @Test
+    public void givenEmployeeId_whenGetEmployeeById_thenReturnEmployeeObject(){
+        given(employeeRepository.findById(1L)).willReturn(Optional.of(employee));
+
+        Employee savedEmployee = employeeService.getEmployeeById(employee.getId()).get();
+
+        assertThat(savedEmployee).isNotNull();
     }
 }
