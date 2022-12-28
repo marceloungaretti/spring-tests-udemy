@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import net.javaguides.springboot.model.Employee;
 import net.javaguides.springboot.service.EmployeeService;
 import org.hamcrest.CoreMatchers;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import static org.mockito.BDDMockito.given;
 
@@ -16,6 +17,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 
@@ -31,6 +35,7 @@ public class EmployeeControllerTests {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @DisplayName("Junit test for create employee rest api")
     @Test
     public void givenEmployeeObject_whenCreateEmployee_thenReturnSavedEmployee() throws Exception {
         Employee employee = Employee.builder()
@@ -53,5 +58,29 @@ public class EmployeeControllerTests {
                         "$.lastName", CoreMatchers.is(employee.getLastName())))
                 .andExpect(MockMvcResultMatchers.jsonPath(
                         "$.email", CoreMatchers.is(employee.getEmail())));
+    }
+
+    @DisplayName("Junit test for get all employees rest api")
+    @Test
+    public void givenListOfEmployees_whenGetAllEmployees_thenReturnEmployeesList() throws Exception {
+        List<Employee> listOfEmployees = new ArrayList<>();
+        listOfEmployees.add(Employee.builder()
+                .firstName("Marcelo")
+                .lastName("Ungaretti")
+                .email("marcelo.ungaretti@gmail.com")
+                .build());
+        listOfEmployees.add(Employee.builder()
+                .firstName("João")
+                .lastName("Silva")
+                .email("joao.silva@gmail.com")
+                .build());
+        given(employeeService.getAllEmployees()).willReturn(listOfEmployees);
+
+        ResultActions response = mockMvc.perform(get("/api/employees"));
+
+        response.andExpect(MockMvcResultMatchers.status().isOk())
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.size()",
+                        CoreMatchers.is(listOfEmployees.size())));
     }
 }
