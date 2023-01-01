@@ -19,8 +19,7 @@ import java.util.Optional;
 import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -117,6 +116,54 @@ public class EmployeeControllerITests {
         employeeRepository.save(employee);
 
         ResultActions response = mockMvc.perform(get("/api/employees/{id}", employeeId));
+
+        response.andExpect(status().isNotFound())
+                .andDo(print());
+    }
+
+    @Test
+    public void givenUpdatedEmployee_whenUpdateEmployee_thenReturnUpdatedEmployeeObject() throws Exception {
+        Employee savedEmployee = Employee.builder()
+                .firstName("Mara")
+                .lastName("Ungaretti")
+                .email("mara.ungaretti@email.com")
+                .build();
+        employeeRepository.save(savedEmployee);
+        Employee updatedEmployee = Employee.builder()
+                .firstName("Marcelo")
+                .lastName("Cainelli")
+                .email("marcelo.cainelli@email.com")
+                .build();
+
+        ResultActions response = mockMvc.perform(put("/api/employees/{id}", savedEmployee.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(updatedEmployee)));
+
+        response.andExpect(status().isOk())
+                .andExpect(jsonPath("$.firstName", is(updatedEmployee.getFirstName())))
+                .andExpect(jsonPath("$.lastName", is(updatedEmployee.getLastName())))
+                .andExpect(jsonPath("$.email", is(updatedEmployee.getEmail())))
+                .andDo(print());
+    }
+
+    @Test
+    public void givenUpdatedEmployee_whenUpdateEmployee_thenReturn404() throws Exception {
+        long employeeId = 1L;
+        Employee savedEmployee = Employee.builder()
+                .firstName("Mara")
+                .lastName("Ungaretti")
+                .email("mara.ungaretti@email.com")
+                .build();
+        employeeRepository.save(savedEmployee);
+        Employee updatedEmployee = Employee.builder()
+                .firstName("Marcelo")
+                .lastName("Cainelli")
+                .email("marcelo.cainelli@email.com")
+                .build();
+
+        ResultActions response = mockMvc.perform(put("/api/employees/{id}", employeeId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(updatedEmployee)));
 
         response.andExpect(status().isNotFound())
                 .andDo(print());
